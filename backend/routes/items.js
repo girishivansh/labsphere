@@ -1,0 +1,12 @@
+const express = require('express');
+const { getAllItems, getItemById, createItem, updateItem, deleteItem, getLowStockItems } = require('../controllers/itemsController');
+const { authenticate, authorize } = require('../middleware/auth');
+const router = express.Router();
+router.use(authenticate);
+router.get('/',          getAllItems);
+router.get('/low-stock', getLowStockItems);
+router.get('/:id',       getItemById);
+router.post('/',         authorize('admin', 'teacher'), createItem);
+router.put('/:id',       authorize('admin', 'teacher'), updateItem);
+router.delete('/:id',    authorize('admin'),            deleteItem);
+module.exports = router;

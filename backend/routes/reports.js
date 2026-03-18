@@ -1,0 +1,11 @@
+const express = require('express');
+const { getDashboardStats, getDailyReport, getMonthlyReport, getDamageReports, getLowStockReport } = require('../controllers/reportsController');
+const { authenticate } = require('../middleware/auth');
+const router = express.Router();
+router.use(authenticate);
+router.get('/dashboard', getDashboardStats);
+router.get('/daily',     getDailyReport);
+router.get('/monthly',   getMonthlyReport);
+router.get('/damage',    getDamageReports);
+router.get('/low-stock', getLowStockReport);
+module.exports = router;
