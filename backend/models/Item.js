@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const QRCode = require('qrcode');
 
 const itemSchema = new mongoose.Schema({
-  itemCode:        { type: String, required: true, unique: true, trim: true },
+  institute:       { type: mongoose.Schema.Types.ObjectId, ref: 'Institute', required: true },
+  itemCode:        { type: String, required: true, trim: true },
   name:            { type: String, required: true, trim: true },
   type:            { type: String, enum: ['chemical', 'equipment'], required: true },
   quantity:        { type: Number, required: true, min: 0, default: 0 },
@@ -30,7 +31,9 @@ itemSchema.pre('save', async function (next) {
   next();
 });
 
-itemSchema.index({ name: 'text', itemCode: 'text' });
-itemSchema.index({ type: 1 });
+// itemCode is unique per institute, not globally
+itemSchema.index({ institute: 1, itemCode: 1 }, { unique: true });
+itemSchema.index({ institute: 1, name: 'text', itemCode: 'text' });
+itemSchema.index({ institute: 1, type: 1 });
 
 module.exports = mongoose.model('Item', itemSchema);

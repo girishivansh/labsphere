@@ -8,15 +8,17 @@ const getAllReturns = async (req, res, next) => {
     const { page = 1, limit = 20 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    const filter = { ...req.tenantFilter };
+
     const [returns, total] = await Promise.all([
-      ReturnLog.find()
+      ReturnLog.find(filter)
         .populate('item', 'name unit type')
         .populate('returnedBy', 'name')
         .populate('receivedBy', 'name')
         .sort({ returnDate: -1 })
         .skip(skip)
         .limit(parseInt(limit)),
-      ReturnLog.countDocuments()
+      ReturnLog.countDocuments(filter)
     ]);
 
     res.json({
@@ -35,20 +37,37 @@ const getAllReturns = async (req, res, next) => {
 const createReturn = async (req, res, next) => {
   try {
     const { issue: issueId, quantityReturned, condition, notes } = req.body;
+    const instituteId = req.user.institute._id || req.user.institute;
 
     if (!issueId || !quantityReturned || !condition)
       return res.status(400).json({ success: false, message: 'issue, quantityReturned, condition are required' });
 
-    // Validate issue exists
-    const issue = await IssueLog.findById(issueId);
+    // Validate issue exists and belongs to this institute
+    const issue = await IssueLog.findOne({ _id: issueId, institute: instituteId });
     if (!issue)
       return res.status(404).json({ success: false, message: 'Issue record not found' });
 
     if (issue.status === 'returned')
       return res.status(400).json({ success: false, message: 'This issue is already fully returned' });
 
+    // Calculate total already returned for this issue
+    const previousReturns = await ReturnLog.aggregate([
+      { $match: { issue: issue._id } },
+      { $group: { _id: null, total: { $sum: '$quantityReturned' } } }
+    ]);
+    const alreadyReturned = previousReturns[0]?.total || 0;
+    const remaining = issue.quantity - alreadyReturned;
+
+    if (parseFloat(quantityReturned) > remaining) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot return ${quantityReturned}. Only ${remaining} remaining from this issue.`
+      });
+    }
+
     // Create return log
     const returnLog = await ReturnLog.create({
+      institute: instituteId,
       issue: issueId,
       item: issue.item,
       returnedBy: issue.issuedTo,
@@ -58,14 +77,15 @@ const createReturn = async (req, res, next) => {
       notes
     });
 
-    // Update issue status to returned
-    await IssueLog.findByIdAndUpdate(issueId, { status: 'returned' });
+    // Determine new status
+    const newTotalReturned = alreadyReturned + parseFloat(quantityReturned);
+    const newStatus = newTotalReturned >= issue.quantity ? 'returned' : 'partially_returned';
+    await IssueLog.findByIdAndUpdate(issueId, { status: newStatus });
 
     // Restore stock based on condition
     let stockIncrease = 0;
     if (condition === 'good')    stockIncrease = parseFloat(quantityReturned);
     if (condition === 'damaged') stockIncrease = parseFloat(quantityReturned) * 0.5;
-    // broken = 0 restore
 
     if (stockIncrease > 0) {
       await Item.findByIdAndUpdate(issue.item, { $inc: { quantity: stockIncrease } });
@@ -74,6 +94,7 @@ const createReturn = async (req, res, next) => {
     // Auto-create damage report for damaged/broken
     if (condition === 'damaged' || condition === 'broken') {
       await DamageReport.create({
+        institute: instituteId,
         item: issue.item,
         reportedBy: req.user._id,
         returnLog: returnLog._id,
@@ -99,7 +120,7 @@ const getRecentReturns = async (req, res, next) => {
     const start = new Date(); start.setHours(0, 0, 0, 0);
     const end   = new Date(); end.setHours(23, 59, 59, 999);
 
-    const returns = await ReturnLog.find({ returnDate: { $gte: start, $lte: end } })
+    const returns = await ReturnLog.find({ ...req.tenantFilter, returnDate: { $gte: start, $lte: end } })
       .populate('item', 'name unit')
       .populate('returnedBy', 'name')
       .sort({ returnDate: -1 });

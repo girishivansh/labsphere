@@ -42,6 +42,33 @@ const deleteUser = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// Reactivate user
+const reactivateUser = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isActive: true },
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, data: user, message: 'User reactivated successfully' });
+  } catch (err) { next(err); }
+};
+
+// Admin reset password
+const resetPassword = async (req, res, next) => {
+  try {
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6)
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const user = await User.findByIdAndUpdate(req.params.id, { passwordHash });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, message: 'Password reset successfully' });
+  } catch (err) { next(err); }
+};
+
 const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -55,4 +82,4 @@ const changePassword = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { getAllUsers, createUser, updateUser, deleteUser, changePassword };
+module.exports = { getAllUsers, createUser, updateUser, deleteUser, reactivateUser, resetPassword, changePassword };

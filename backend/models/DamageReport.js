@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const damageReportSchema = new mongoose.Schema({
+  institute:        { type: mongoose.Schema.Types.ObjectId, ref: 'Institute', required: true },
   item:             { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
   reportedBy:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   returnLog:        { type: mongoose.Schema.Types.ObjectId, ref: 'ReturnLog' },
@@ -15,7 +16,7 @@ const damageReportSchema = new mongoose.Schema({
   resolvedBy:       { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
-damageReportSchema.index({ item: 1 });
-damageReportSchema.index({ reportDate: -1 });
+damageReportSchema.index({ institute: 1, item: 1 });
+damageReportSchema.index({ institute: 1, reportDate: -1 });
 
 module.exports = mongoose.model('DamageReport', damageReportSchema);

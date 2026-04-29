@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const issueLogSchema = new mongoose.Schema({
+  institute:          { type: mongoose.Schema.Types.ObjectId, ref: 'Institute', required: true },
   item:               { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
   issuedTo:           { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   issuedBy:           { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -12,9 +13,9 @@ const issueLogSchema = new mongoose.Schema({
   notes:              { type: String },
 }, { timestamps: true });
 
-issueLogSchema.index({ item: 1 });
-issueLogSchema.index({ issuedTo: 1 });
-issueLogSchema.index({ status: 1 });
-issueLogSchema.index({ issueDate: -1 });
+issueLogSchema.index({ institute: 1, item: 1 });
+issueLogSchema.index({ institute: 1, issuedTo: 1 });
+issueLogSchema.index({ institute: 1, status: 1 });
+issueLogSchema.index({ institute: 1, issueDate: -1 });
 
 module.exports = mongoose.model('IssueLog', issueLogSchema);

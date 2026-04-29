@@ -1,37 +1,51 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, ArrowUpFromLine } from 'lucide-react';
-import { issuesAPI, itemsAPI, usersAPI } from '../services/api';
-import { Modal, PageHeader, EmptyState, LoadingPage, Pagination } from '../components/ui';
-import { formatDateTime, statusBadge } from '../utils/helpers';
+import { Plus, ArrowUpFromLine, Clock, Search } from 'lucide-react';
+import { issuesAPI, itemsAPI } from '../services/api';
+import { Modal, PageHeader, EmptyState, LoadingPage, Pagination, SearchInput, TabBar, SkeletonTable } from '../components/ui';
+import { formatDateTime, statusBadge, relativeTime } from '../utils/helpers';
+import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 
+const STATUS_TABS = [
+  { id: '',         label: 'All',       icon: null },
+  { id: 'issued',   label: 'Issued',    icon: ArrowUpFromLine },
+  { id: 'returned', label: 'Returned',  icon: null },
+  { id: 'overdue',  label: 'Overdue',   icon: Clock },
+  { id: 'partially_returned', label: 'Partial', icon: null },
+];
+
 export default function IssuesPage() {
+  const { isInstituteAdmin, isLabIncharge } = useAuth();
+  const canIssue = isInstituteAdmin || isLabIncharge;
   const [issues,     setIssues]     = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading,    setLoading]    = useState(true);
   const [page,       setPage]       = useState(1);
+  const [status,     setStatus]     = useState('');
+  const [search,     setSearch]     = useState('');
   const [modalOpen,  setModalOpen]  = useState(false);
   const [items,      setItems]      = useState([]);
-  const [users,      setUsers]      = useState([]);
   const [form,       setForm]       = useState({ item:'', issuedTo:'', quantity:'', purpose:'', expectedReturnDate:'' });
   const [saving,     setSaving]     = useState(false);
   const [selItem,    setSelItem]    = useState(null);
 
   const fetchIssues = useCallback(() => {
     setLoading(true);
-    issuesAPI.getAll({ page, limit: 15 })
+    const params = { page, limit: 15 };
+    if (status) params.status = status;
+    if (search) params.search = search;
+    issuesAPI.getAll(params)
       .then(res => { setIssues(res.data.data); setPagination(res.data.pagination); })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [page]);
+  }, [page, status, search]);
 
   useEffect(() => { fetchIssues(); }, [fetchIssues]);
 
   const openModal = async () => {
     try {
-      const [ir, ur] = await Promise.all([itemsAPI.getAll({ limit:100 }), usersAPI.getAll()]);
+      const [ir] = await Promise.all([itemsAPI.getAll({ limit:100 })]);
       setItems(ir.data.data);
-      setUsers(ur.data.data.filter(u => u.role !== 'admin'));
       setForm({ item:'', issuedTo:'', quantity:'', purpose:'', expectedReturnDate:'' });
       setSelItem(null);
       setModalOpen(true);
@@ -56,14 +70,27 @@ export default function IssuesPage() {
     finally { setSaving(false); }
   };
 
+  const handleStatusChange = (s) => { setStatus(s); setPage(1); };
+  const handleSearch = (v) => { setSearch(v); setPage(1); };
+
   return (
-    <div>
-      <PageHeader title="Issue Items" subtitle="Issue lab items to students"
-        action={<button onClick={openModal} className="btn-primary"><Plus size={16}/>Issue Item</button>} />
+    <div className="animate-fade-in">
+      <PageHeader title="Issue Items" subtitle="Issue lab items to students and track status"
+        action={canIssue && <button onClick={openModal} className="btn-primary"><Plus size={16}/>Issue Item</button>} />
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 mb-5 items-start">
+        <TabBar
+          tabs={STATUS_TABS.map(t => ({ ...t, count: undefined }))}
+          active={status}
+          onChange={handleStatusChange}
+        />
+        <SearchInput value={search} onChange={handleSearch} placeholder="Search items, users..." />
+      </div>
 
       <div className="card">
-        {loading ? <LoadingPage /> : issues.length === 0 ? (
-          <EmptyState icon={ArrowUpFromLine} title="No issues yet" subtitle="Issue items to students to see them here" />
+        {loading ? <SkeletonTable rows={8} cols={7} /> : issues.length === 0 ? (
+          <EmptyState icon={ArrowUpFromLine} title="No issues found" subtitle={status ? `No ${status} issues` : "Issue items to students to see them here"} />
         ) : (
           <>
             <div className="tbl-wrap">
@@ -73,18 +100,35 @@ export default function IssuesPage() {
                   <th>Quantity</th><th>Date</th><th>Expected Return</th><th>Status</th><th>Purpose</th>
                 </tr></thead>
                 <tbody>
-                  {issues.map(issue => (
-                    <tr key={issue._id}>
-                      <td><div className="font-semibold text-slate-800">{issue.item?.name}</div><div className="text-xs text-slate-400 font-mono">{issue.item?.itemCode}</div></td>
-                      <td>{issue.issuedTo?.name}</td>
-                      <td className="text-slate-500">{issue.issuedBy?.name}</td>
-                      <td className="font-semibold">{issue.quantity} {issue.item?.unit}</td>
-                      <td className="text-slate-500">{formatDateTime(issue.issueDate)}</td>
-                      <td className="text-slate-500">{issue.expectedReturnDate ? new Date(issue.expectedReturnDate).toLocaleDateString('en-IN') : '—'}</td>
-                      <td><span className={statusBadge(issue.status)}>{issue.status?.replace('_',' ')}</span></td>
-                      <td className="text-slate-400 max-w-32 truncate">{issue.purpose || '—'}</td>
-                    </tr>
-                  ))}
+                  {issues.map(issue => {
+                    const isOverdue = issue.status === 'overdue';
+                    return (
+                      <tr key={issue._id} className={isOverdue ? 'bg-red-50/50 dark:bg-red-500/5' : ''}>
+                        <td>
+                          <div className="font-bold" style={{ color: 'var(--text-primary)' }}>{issue.item?.name}</div>
+                          <div className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>{issue.item?.itemCode}</div>
+                        </td>
+                        <td>
+                          <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{issue.issuedTo?.name}</span>
+                        </td>
+                        <td>{issue.issuedBy?.name}</td>
+                        <td className="font-bold" style={{ color: 'var(--text-primary)' }}>{issue.quantity} {issue.item?.unit}</td>
+                        <td>
+                          <span title={formatDateTime(issue.issueDate)}>{relativeTime(issue.issueDate)}</span>
+                        </td>
+                        <td>
+                          {issue.expectedReturnDate ? (
+                            <span className={isOverdue ? 'text-red-500 font-bold' : ''}>
+                              {new Date(issue.expectedReturnDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                              {isOverdue && <Clock size={12} className="inline ml-1 animate-pulse" />}
+                            </span>
+                          ) : '—'}
+                        </td>
+                        <td><span className={statusBadge(issue.status)}>{issue.status?.replace('_',' ')}</span></td>
+                        <td className="max-w-32 truncate" style={{ color: 'var(--text-tertiary)' }}>{issue.purpose || '—'}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -101,17 +145,19 @@ export default function IssuesPage() {
               <option value="">Choose item...</option>
               {items.map(i => <option key={i._id} value={i._id}>{i.name} ({i.itemCode}) — {i.quantity} {i.unit} available</option>)}
             </select>
-            {selItem && <p className="text-xs text-slate-500 mt-1">Available: <span className="font-bold text-brand-600">{selItem.quantity} {selItem.unit}</span> · Location: {selItem.storageLocation || 'N/A'}</p>}
+            {selItem && (
+              <div className="flex items-center gap-2 mt-2 text-xs p-2.5 rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Available:</span>
+                <span className="font-bold text-brand-600">{selItem.quantity} {selItem.unit}</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>· {selItem.storageLocation || 'No location'}</span>
+              </div>
+            )}
           </div>
           <div>
-            <label className="label">Issue To (Student / Teacher Name) *</label>
-            <input
-              className="input"
-              placeholder="e.g. Rahul Kumar"
-              value={form.issuedTo}
-              onChange={e => setForm(p => ({...p, issuedTo: e.target.value}))}
-              required
-            />
+            <label className="label">Issue To (Name) *</label>
+            <input className="input" placeholder="e.g. Rahul Kumar" value={form.issuedTo}
+              onChange={e => setForm(p => ({...p, issuedTo: e.target.value}))} required />
+            <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>Enter the exact name of the registered user</p>
           </div>
           <div>
             <label className="label">Quantity *</label>
