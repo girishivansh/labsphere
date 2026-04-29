@@ -8,8 +8,16 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────────────────────
+const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : ['http://localhost:5173'];
+
 app.use(cors({
-  origin: true, // Allow any origin in development, reflects the request origin
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -38,7 +46,7 @@ mongoose.connect(process.env.MONGODB_URI)
     app.listen(PORT, () => {
       console.log(`\n🚀 LabSphere API running on http://localhost:${PORT}`);
       console.log(`🍃 Database  : MongoDB`);
-      console.log(`🌍 Frontend  : Allowed All (Dev Mode)`);
+      console.log(`🌍 Frontend  : ${process.env.NODE_ENV === 'production' ? allowedOrigins.join(', ') : 'Allowed All (Dev Mode)'}`);
       console.log(`📋 Env       : ${process.env.NODE_ENV || 'development'}\n`);
     });
   })
