@@ -3,7 +3,7 @@
 # 🔬 LabSphere
 ### *Smart Lab. Smart Management.*
 
-[![React](https://img.shields.io/badge/React-18.2-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org)
+[![React](https://img.shields.io/badge/React-18.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
 [![MongoDB](https://img.shields.io/badge/MongoDB-8.0-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
 [![Express](https://img.shields.io/badge/Express-4.18-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
@@ -11,141 +11,100 @@
 [![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io)
 
 **A complete, production-ready Chemistry Lab Inventory Management System**  
-Built with the MERN stack — manage chemicals, equipment, issue/return workflows, and generate reports.
+Built with the MERN stack — manage chemicals, equipment, issue/return workflows, and generate comprehensive reports.
 
-[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Docs](#-api-reference) • [Deployment](#-deployment)
+[Features](#-key-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Docs](#-api-reference) • [Deployment](#-zero-cost-deployment)
 
 ---
-
-
 
 </div>
 
+## 💡 Why LabSphere?
+
+Managing a chemistry lab involves handling sensitive chemicals, tracking expensive equipment, and ensuring safety through proper usage logs. Traditional paper-based or simple spreadsheet systems are error-prone and inefficient. 
+
+**LabSphere** digitizes the entire process. It offers real-time stock tracking, strict role-based access, and automated hazard reporting, turning a chaotic lab environment into a structured, safe, and easily manageable ecosystem.
+
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-### 🔐 Authentication & Role-Based Access Control
-- **3-step portal login** — Select role → Enter credentials → Access granted
-- **Strict role enforcement** — Admin can't login via Teacher portal and vice versa
-- JWT-based secure authentication with 7-day token expiry
-- Password hashing with bcryptjs (unique hash per user)
-- Unauthorized access redirects to a dedicated error page
+### 🔐 Ironclad Security & Role-Based Access
+- **Streamlined Portal** — Select role → Authenticate → Access personalized dashboard.
+- **Strict Role Enforcement** — Segregated access for Admins, Teachers, and Students.
+- **JWT Authentication** — Secure, stateless sessions with 7-day token expiry.
+- **Data Protection** — Passwords hashed with `bcryptjs` and database secured against injections.
 
-### 👥 User Roles & Permissions
+### 📦 Smart Inventory & Asset Tracking
+- **Comprehensive Metadata** — Log chemicals and equipment with extreme detail.
+- **Automated Cataloging** — Auto-generated item codes (e.g., `CHEM-001`, `EQUIP-001`).
+- **QR Code Integration** — Instant, server-generated QR codes for every asset.
+- **Hazard Awareness** — Visual hazard level tagging (Low / Medium / High / Extreme).
+- **Proactive Alerts** — Dashboard warnings and visual cues when items fall below minimum stock limits.
+
+### 🔄 Seamless Issue & Return Workflows
+- **Real-Time Stock Adjustment** — Quantities auto-deduct on issue and restore on return.
+- **Condition Monitoring** — Track returned items as **Good**, **Damaged**, or **Broken**.
+- **Automated Damage Reports** — Instantly generates incident logs for damaged/broken returns, ensuring accountability.
+
+### 📊 Comprehensive Analytics & Reports
+- **Daily Operations** — Snapshot of all issues and returns for any given date.
+- **Monthly Usage** — Detailed utilization metrics per item.
+- **Low Stock Radar** — Instantly identify what needs reordering.
+- **Damage History** — Maintain a clear ledger of breakages and equipment depreciation.
+
+### 👥 User Permissions Matrix
 
 | Feature | Admin | Teacher | Student |
 |---------|:-----:|:-------:|:-------:|
-| Dashboard | ✅ | ✅ | ✅ |
-| View Inventory | ✅ | ✅ | ✅ |
-| Add/Edit Items | ✅ | ✅ | ❌ |
-| Delete Items | ✅ | ❌ | ❌ |
-| Issue Items | ✅ | ✅ | ❌ |
-| Record Returns | ✅ | ✅ | ❌ |
-| View Reports | ✅ | ✅ | ❌ |
-| Manage Users | ✅ | ❌ | ❌ |
-
-### 📦 Inventory Management
-- Add chemicals and equipment with full metadata
-- Auto-generated item codes (CHEM-001, EQUIP-001)
-- QR code generated automatically for every item
-- Hazard level tagging (Low / Medium / High / Extreme)
-- Search, filter by type, filter by low stock
-- Paginated tables for fast loading
-
-### 🔄 Issue & Return System
-- Issue items to students/teachers with quantity tracking
-- Stock auto-deducted on issue
-- Return with condition: **Good** / **Damaged** / **Broken**
-- Stock auto-restored on return (based on condition)
-- Auto damage report created for damaged/broken returns
-
-### 📊 Reports & Analytics
-- **Daily Report** — All issues and returns for a selected date
-- **Monthly Report** — Usage summary per item
-- **Low Stock Report** — Items below minimum limit
-- **Damage Reports** — All damage/breakage history
-
-### 🚨 Low Stock Alerts
-- Dashboard warning banner when items fall below minimum limit
-- Red highlight on low-stock items in inventory table
+| **Dashboard Access** | ✅ | ✅ | ✅ |
+| **View Inventory** | ✅ | ✅ | ✅ |
+| **Add/Edit Items** | ✅ | ✅ | ❌ |
+| **Issue Items** | ✅ | ✅ | ❌ |
+| **Record Returns** | ✅ | ✅ | ❌ |
+| **View Reports** | ✅ | ✅ | ❌ |
+| **Delete Items** | ✅ | ❌ | ❌ |
+| **Manage Users** | ✅ | ❌ | ❌ |
 
 ---
 
 ## 🛠 Tech Stack
 
-### Frontend
-| Technology | Purpose |
-|------------|---------|
-| React 18 + Vite | UI framework + build tool |
-| Tailwind CSS | Styling |
-| React Router v6 | Client-side routing |
-| Axios | HTTP requests |
-| Lucide React | Icons |
-| QRCode.react | QR code rendering |
-| React Hot Toast | Notifications |
+### Frontend 🎨
+- **Core:** React 18 + Vite
+- **Styling:** Tailwind CSS
+- **Routing:** React Router v6
+- **State/HTTP:** Axios
+- **UI Goodies:** Lucide React (Icons), QRCode.react, React Hot Toast (Notifications)
 
-### Backend
-| Technology | Purpose |
-|------------|---------|
-| Node.js + Express | Server framework |
-| MongoDB + Mongoose | Database + ODM |
-| JWT | Authentication |
-| bcryptjs | Password hashing |
-| QRCode | Server-side QR generation |
-| Helmet | Security headers |
-| Morgan | Request logging |
-| Express Rate Limit | API rate limiting |
+### Backend ⚙️
+- **Core:** Node.js + Express
+- **Database:** MongoDB + Mongoose ODM
+- **Security:** JWT, bcryptjs, Helmet
+- **Utilities:** Morgan (Logging), Express Rate Limit, server-side QRCode generation
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Architecture
 
-```
+```text
 LabSphere/
+├── backend/                  # Robust Express + MongoDB API
+│   ├── config/               # DB connections & Seeders
+│   ├── controllers/          # Business logic handlers
+│   ├── middleware/           # JWT Auth, Error handling
+│   ├── models/               # Mongoose Schemas (User, Item, Logs)
+│   ├── routes/               # Modular API routes
+│   └── server.js             # Application entry point
 │
-├── 📁 backend/
-│   ├── 📁 config/
-│   │   ├── db.js              # MongoDB connection
-│   │   └── seed.js            # Demo data seeder
-│   ├── 📁 models/
-│   │   ├── User.js            # User schema
-│   │   ├── Item.js            # Item schema (auto QR on save)
-│   │   ├── IssueLog.js        # Issue tracking
-│   │   ├── ReturnLog.js       # Return tracking
-│   │   └── DamageReport.js    # Damage reports
-│   ├── 📁 controllers/        # Business logic
-│   ├── 📁 routes/             # API route definitions
-│   ├── 📁 middleware/
-│   │   ├── auth.js            # JWT authenticate + authorize
-│   │   └── errorHandler.js    # Global error handler
-│   ├── .env.example           # Environment variables template
-│   ├── package.json
-│   └── server.js              # Express app entry point
-│
-├── 📁 frontend/
-│   ├── 📁 src/
-│   │   ├── 📁 components/
-│   │   │   ├── layout/        # Sidebar + AppLayout
-│   │   │   └── ui/            # Reusable UI components
-│   │   ├── 📁 hooks/
-│   │   │   └── useAuth.jsx    # Auth context + hook
-│   │   ├── 📁 pages/
-│   │   │   ├── LoginPage.jsx
-│   │   │   ├── DashboardPage.jsx
-│   │   │   ├── InventoryPage.jsx
-│   │   │   ├── IssuesPage.jsx
-│   │   │   ├── ReturnsPage.jsx
-│   │   │   ├── ReportsPage.jsx
-│   │   │   ├── UsersPage.jsx
-│   │   │   └── UnauthorizedPage.jsx
-│   │   ├── 📁 services/
-│   │   │   └── api.js         # All Axios API calls
-│   │   └── 📁 utils/
-│   │       └── helpers.js     # Date formatters + badge helpers
-│   ├── index.html
-│   ├── vite.config.js
-│   └── package.json
+├── frontend/                 # Reactive React + Tailwind UI
+│   ├── src/
+│   │   ├── components/       # Reusable UI & Layouts
+│   │   ├── hooks/            # Custom hooks (useAuth)
+│   │   ├── pages/            # View components (Dashboard, Inventory, etc.)
+│   │   ├── services/         # Axios API clients
+│   │   └── utils/            # Formatters & Helpers
+│   └── vite.config.js
 │
 └── README.md
 ```
@@ -155,11 +114,11 @@ LabSphere/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org) v18+
-- [MongoDB](https://www.mongodb.com/try/download/community) v6+
+- [Node.js](https://nodejs.org) (v18+)
+- [MongoDB](https://www.mongodb.com/try/download/community) (v6+ local or Atlas)
 - [Git](https://git-scm.com)
 
-### Installation
+### Installation Guide
 
 **1. Clone the repository**
 ```bash
@@ -167,147 +126,107 @@ git clone https://github.com/girishivansh/labsphere.git
 cd labsphere
 ```
 
-**2. Backend Setup**
+**2. Initialize the Backend**
 ```bash
 cd backend
 npm install
 copy .env.example .env
 ```
-
-Edit `.env` file:
+*Configure your `.env` file:*
 ```env
 PORT=5000
 NODE_ENV=development
 MONGODB_URI=mongodb://localhost:27017/chemlab_db
-JWT_SECRET=your_secret_key_here
+JWT_SECRET=your_super_secret_key
 JWT_EXPIRES_IN=7d
 FRONTEND_URL=http://localhost:5173
 ```
-
-Seed demo data (run only once):
+*Seed demo data & Start:*
 ```bash
-npm run seed
-```
-
-Start backend server:
-```bash
+npm run seed  # Run only once to populate DB
 npm run dev
 ```
-> ✅ MongoDB Connected + 🚀 LabSphere API running on port 5000
 
-**3. Frontend Setup** (new terminal)
+**3. Initialize the Frontend** (In a new terminal)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-
-Open browser: **http://localhost:5173**
+🌐 **Open your browser and navigate to:** `http://localhost:5173`
 
 ---
-
-
 
 ## 📡 API Reference
 
-### Authentication
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| POST | `/api/auth/login` | Login user | Public |
-| GET | `/api/auth/me` | Get current user | All |
+Our robust REST API ensures seamless communication between the client and server.
 
-### Items
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| GET | `/api/items` | Get all items (paginated) | All |
-| GET | `/api/items/:id` | Get item by ID | All |
-| POST | `/api/items` | Create new item | Admin, Teacher |
-| PUT | `/api/items/:id` | Update item | Admin, Teacher |
-| DELETE | `/api/items/:id` | Delete item | Admin |
-| GET | `/api/items/low-stock` | Get low stock items | All |
+<details>
+<summary><b>Authentication & Users</b></summary>
 
-### Issues
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| GET | `/api/issues` | Get all issues | All |
-| POST | `/api/issues` | Create issue | Admin, Teacher |
-| GET | `/api/issues/today` | Get today's issues | Admin, Teacher |
+- `POST /api/auth/login` - Authenticate user
+- `GET /api/auth/me` - Retrieve current profile
+- `GET /api/users` - List users *(Admin/Teacher)*
+- `POST /api/users` - Create user *(Admin)*
+</details>
 
-### Returns
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| GET | `/api/returns` | Get all returns | All |
-| POST | `/api/returns` | Record return | Admin, Teacher |
-| GET | `/api/returns/recent` | Get today's returns | Admin, Teacher |
+<details>
+<summary><b>Inventory Management</b></summary>
 
-### Reports
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| GET | `/api/reports/dashboard` | Dashboard stats | All |
-| GET | `/api/reports/daily` | Daily report | Admin, Teacher |
-| GET | `/api/reports/monthly` | Monthly report | Admin, Teacher |
-| GET | `/api/reports/damage` | Damage reports | Admin, Teacher |
-| GET | `/api/reports/low-stock` | Low stock report | All |
+- `GET /api/items` - List items (paginated)
+- `POST /api/items` - Add new item *(Admin/Teacher)*
+- `PUT /api/items/:id` - Update item *(Admin/Teacher)*
+- `DELETE /api/items/:id` - Remove item *(Admin)*
+- `GET /api/items/low-stock` - Alert on low stock
+</details>
 
-### Users
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|--------|
-| GET | `/api/users` | Get all users | Admin, Teacher |
-| POST | `/api/users` | Create user | Admin |
-| PUT | `/api/users/:id` | Update user | Admin |
-| DELETE | `/api/users/:id` | Deactivate user | Admin |
+<details>
+<summary><b>Workflows & Reports</b></summary>
+
+- `POST /api/issues` - Issue item *(Admin/Teacher)*
+- `POST /api/returns` - Record return *(Admin/Teacher)*
+- `GET /api/reports/dashboard` - High-level metrics
+- `GET /api/reports/damage` - Incident logs *(Admin/Teacher)*
+</details>
 
 ---
 
-## 🌐 Deployment
+## 🌐 Zero-Cost Deployment
 
-### Free Deployment Stack
-| Service | Platform | Cost |
-|---------|----------|------|
-| Frontend | Vercel | Free |
-| Backend | Render | Free |
-| Database | MongoDB Atlas | Free |
+LabSphere is engineered to be deployed easily on free-tier services.
 
-### Quick Deploy Guide
+| Service | Recommended Platform | Cost |
+|---------|----------------------|------|
+| **Frontend** | Vercel | Free |
+| **Backend** | Render | Free |
+| **Database** | MongoDB Atlas | Free |
 
-**1. MongoDB Atlas**
-- Create free cluster at [cloud.mongodb.com](https://cloud.mongodb.com)
-- Whitelist all IPs: `0.0.0.0/0`
-- Copy connection string
-
-**2. Backend on Render**
-- Connect GitHub repo
-- Root Directory: `backend`
-- Build: `npm install` | Start: `npm start`
-- Add environment variables
-
-**3. Frontend on Vercel**
-- Connect GitHub repo
-- Root Directory: `frontend`
-- Add `VITE_API_URL=https://your-backend.onrender.com/api`
+**Quick Tips:**
+- Whitelist `0.0.0.0/0` on MongoDB Atlas.
+- Ensure `VITE_API_URL` is set in Vercel to your deployed Render backend URL.
+- Use `npm install` and `npm start` for your backend build commands.
 
 ---
 
-## 🔒 Security Features
+## 🛡️ Production Security Checklist
 
-- ✅ JWT authentication with expiry
-- ✅ bcrypt password hashing (salt rounds: 10)
-- ✅ Role-based access control (RBAC)
-- ✅ HTTP security headers (Helmet)
-- ✅ Rate limiting (200 req/15min)
-- ✅ CORS restricted to frontend origin
-- ✅ MongoDB injection prevention (Mongoose)
-- ✅ Environment variables for secrets
+- [x] JWT-based stateless authentication
+- [x] Password hashing with `bcryptjs` (Cost factor: 10)
+- [x] Strict Role-Based Access Control (RBAC) middleware
+- [x] HTTP headers secured via Helmet
+- [x] DDoS mitigation via Express Rate Limiting (200 req/15min)
+- [x] Strict CORS policies
+- [x] NoSQL Injection protection via Mongoose
 
 ---
 
-## 👨‍💻 Developer
+## 👨‍💻 Meet the Developer
 
 <div align="center">
 
 **Shivansh Giri**  
 B.S. Computer Science & Data Analytics  
-IIT Patna | Batch 2025–2029
+*IIT Patna | Batch 2025–2029*
 
 [![GitHub](https://img.shields.io/badge/GitHub-girishivansh-181717?style=flat&logo=github)](https://github.com/girishivansh)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-shivansh--giri2008-0A66C2?style=flat&logo=linkedin)](https://linkedin.com/in/shivansh-giri2008)
@@ -321,6 +240,6 @@ IIT Patna | Batch 2025–2029
 
 **LabSphere** — *Every Chemical. Every Equipment. Every Time.*
 
-⭐ Star this repo if you found it helpful!
+🌟 **If LabSphere makes your life easier, consider giving it a star on GitHub!** 🌟
 
 </div>
